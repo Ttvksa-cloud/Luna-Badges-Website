@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Twitch Badges Hub | منصة بادجات تويتش الاحترافية</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Space+Grotesk:wght@600;700&display=swap">
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    twitch: {
+                        base: '#08070d', card: 'rgba(23, 19, 38, 0.55)', cardHover: 'rgba(32, 26, 52, 0.75)',
+                        purple: '#9146FF', purpleLight: '#a970ff', purpleDark: '#5c16c5',
+                        neonGreen: '#00f5d4', neonBlue: '#3a86ff', neonPink: '#ff007f',
+                        neonYellow: '#ffbe0b', neonRed: '#ff0055',
+                        border: 'rgba(255, 255, 255, 0.12)'
+                    }
+                },
+                fontFamily: {
+                    sans: ['Tajawal', 'Tahoma', 'sans-serif'],
+                    code: ['Space Grotesk', 'Tajawal', 'sans-serif']
+                },
+                boxShadow: {
+                    'glass-glow': '0 8px 32px 0 rgba(145, 71, 255, 0.25)',
+                    'badge-glow': '0 0 25px rgba(145, 71, 255, 0.45)',
+                    'ios-card': '0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15)',
+                    'ios-float': '0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(145, 71, 255, 0.3)'
+                }
+            }
+        }
+    }
+</script>
+<style>
+    :root {
+        color-scheme: dark;
+        --bg: #07060b;
+        --fg: #f3f3f7;
+        --glass-bg: rgba(22, 18, 36, 0.55);
+        --glass-border: rgba(255, 255, 255, 0.12);
+        --glass-border-hover: rgba(169, 112, 255, 0.4);
+        --accent: #9146FF;
+        --accent-glow: rgba(145, 71, 255, 0.4);
+        --bad: #ff0055;
+    }
+
+    body {
+        background-color: var(--bg);
+        color: var(--fg);
+        font-family: 'Tajawal', Tahoma, sans-serif;
+        overflow-x: hidden;
+        background-image:
+            radial-gradient(circle at 15% 15%, rgba(145, 71, 255, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 85% 75%, rgba(0, 245, 212, 0.08) 0%, transparent 40%),
+            radial-gradient(circle at 50% 50%, rgba(255, 0, 127, 0.06) 0%, transparent 50%);
+        background-attachment: fixed;
+    }
+
+    .ios-glass {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .ios-glass-header {
+        background: rgba(12, 10, 20, 0.7);
+        backdrop-filter: blur(25px) saturate(200%);
+        -webkit-backdrop-filter: blur(25px) saturate(200%);
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .ios-button {
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    .ios-button:active { transform: scale(0.96); }
+    .ios-button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .badge-card {
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+    .badge-card:hover {
+        transform: translateY(-5px) scale(1.01);
+        border-color: var(--glass-border-hover);
+        box-shadow: 0 15px 35px -5px rgba(145, 71, 255, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .badge-display-frame {
+        background: radial-gradient(circle at center, rgba(145, 71, 255, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: inset 0 0 15px rgba(145, 71, 255, 0.2);
+    }
+
+    .pill {
+        padding: 0.4rem 0.95rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: #d1d5db;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+    .pill:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(169, 112, 255, 0.5);
+    }
+    .pill[aria-pressed="true"] {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+        box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .view-btn { color: #9ca3af; }
+    .view-btn:hover { color: #fff; }
+    .view-btn[aria-pressed="true"] { background: var(--accent); color: #fff; box-shadow: 0 0 14px var(--accent-glow); }
+
+    .badge-card.selected {
+        border-color: #00f5d4 !important;
+        background: rgba(0, 245, 212, 0.08) !important;
+        box-shadow: 0 0 25px rgba(0, 245, 212, 0.25) !important;
+    }
+
+    .ico { display: inline-block; flex-shrink: 0; }
+    .timer.expired { color: var(--bad); }
+    .field {
+        width: 100%;
+        background: rgba(10, 8, 18, 0.8);
+        border: 1px solid var(--glass-border);
+        color: #fff;
+        padding: 0.65rem 0.85rem;
+        border-radius: 0.85rem;
+        font-size: 0.875rem;
+        transition: border-color 0.2s;
+    }
+    .field:focus { border-color: var(--accent); outline: none; }
+    .modal[hidden] { display: none !important; }
+    #empty-state:not([hidden]) { display: flex; }
+
+    @keyframes floatUp {
+        from { transform: translate(-50%, 100%); opacity: 0; }
+        to { transform: translate(-50%, 0); opacity: 1; }
+    }
+    .animate-float-up { animation: floatUp 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #08070d; }
+    ::-webkit-scrollbar-thumb { background: #26203a; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    #toast {
+        position: fixed; left: 50%; transform: translateX(-50%);
+        bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+        background: rgba(28, 22, 48, 0.92);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        color: #fff; padding: 0.75rem 1.4rem; border-radius: 1rem;
+        font-size: 0.85rem; font-weight: 700; z-index: 120;
+        opacity: 0; pointer-events: none; transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        max-width: 90%; text-align: center;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(-5px); }
+    #toast.error { border-color: rgba(255, 0, 85, 0.6); }
+</style>
+</head>
+<body class="selection:bg-twitch-purple selection:text-white min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="ios-glass-header sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <div class="w-11 h-11 flex-shrink-0 bg-gradient-to-tr from-twitch-purpleDark via-twitch-purple to-twitch-purpleLight rounded-2xl flex items-center justify-center text-white shadow-glass-glow border border-white/20">
+                    <span data-icon="twitch" data-cls="w-6 h-6" data-fill="1"></span>
+                </div>
+                <div class="min-w-0">
+                    <h1 class="text-lg sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                        <span class="truncate">منصة بادجات تويتش</span>
+                        <span class="text-[10px] font-code font-bold bg-twitch-purple/20 text-twitch-purpleLight px-2.5 py-0.5 rounded-full border border-twitch-purple/40 backdrop-blur-md">v4.1</span>
+                    </h1>
+                    <p class="text-xs text-gray-400 hidden sm:block">واجهة متطورة لدعم رفع ومعاينة صور البادجات بوضوح</p>
+                </div>
+            </div>
+
+            <!-- Stats Desktop -->
+            <div class="hidden lg:flex items-center gap-3 bg-black/30 p-1.5 rounded-2xl border border-white/10 backdrop-blur-md">
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-twitch-neonGreen/10 border border-twitch-neonGreen/30">
+                    <span class="w-2.5 h-2.5 rounded-full bg-twitch-neonGreen animate-pulse"></span>
+                    <span class="text-xs text-gray-300">متاح:</span>
+                    <span id="stat-available" class="text-sm font-bold text-twitch-neonGreen font-code">0</span>
+                </div>
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-twitch-neonBlue/10 border border-twitch-neonBlue/30">
+                    <span class="w-2.5 h-2.5 rounded-full bg-twitch-neonBlue"></span>
+                    <span class="text-xs text-gray-300">قريباً:</span>
+                    <span id="stat-soon" class="text-sm font-bold text-twitch-neonBlue font-code">0</span>
+                </div>
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-twitch-neonRed/10 border border-twitch-neonRed/30">
+                    <span class="w-2.5 h-2.5 rounded-full bg-twitch-neonRed"></span>
+                    <span class="text-xs text-gray-300">غير متاح:</span>
+                    <span id="stat-unavailable" class="text-sm font-bold text-twitch-neonRed font-code">0</span>
+                </div>
+            </div>
+
+            <!-- Header Action Buttons -->
+            <div class="flex items-center gap-2.5">
+                <button id="toggle-select-mode-btn" type="button" class="ios-button bg-white/10 hover:bg-white/20 text-white font-bold px-3.5 py-2.5 rounded-2xl border border-white/15 text-xs flex items-center gap-2 backdrop-blur-md">
+                    <span data-icon="checkSquare" data-cls="w-4 h-4 text-twitch-neonGreen"></span>
+                    <span id="select-mode-btn-text" class="hidden sm:inline">تحديد وحذف جماعي</span>
+                </button>
+
+                <button id="add-btn" type="button" class="ios-button bg-gradient-to-r from-twitch-purple to-twitch-purpleLight hover:from-twitch-purpleDark hover:to-twitch-purple text-white font-bold px-4 py-2.5 rounded-2xl transition-all shadow-glass-glow border border-white/20 flex items-center gap-2 text-sm">
+                    <span data-icon="plus" data-cls="w-4 h-4"></span>
+                    <span class="hidden sm:inline">إضافة شارة</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Body -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-grow w-full pb-32">
+
+        <!-- Stats (mobile / tablet) -->
+        <div class="lg:hidden grid grid-cols-3 gap-2 mb-5 text-center text-xs">
+            <div class="rounded-2xl bg-twitch-neonGreen/10 border border-twitch-neonGreen/30 py-2">
+                <div class="text-gray-300">متاح</div>
+                <div id="stat-available-m" class="text-base font-bold text-twitch-neonGreen font-code">0</div>
+            </div>
+            <div class="rounded-2xl bg-twitch-neonBlue/10 border border-twitch-neonBlue/30 py-2">
+                <div class="text-gray-300">قريباً</div>
+                <div id="stat-soon-m" class="text-base font-bold text-twitch-neonBlue font-code">0</div>
+            </div>
+            <div class="rounded-2xl bg-twitch-neonRed/10 border border-twitch-neonRed/30 py-2">
+                <div class="text-gray-300">غير متاح</div>
+                <div id="stat-unavailable-m" class="text-base font-bold text-twitch-neonRed font-code">0</div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <section class="ios-glass rounded-3xl p-5 sm:p-6 mb-8 flex flex-col gap-5 shadow-2xl" aria-label="البحث والفلاتر">
+            <div class="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
+                <div class="relative flex-grow md:max-w-md">
+                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" data-icon="search" data-cls="w-4 h-4"></span>
+                    <input type="text" id="search-input" placeholder="بحث باسم الشارة، الرمز (#Code) أو الوصف..."
+                           class="w-full bg-black/40 border border-white/10 text-white pr-11 pl-4 py-3 rounded-2xl transition-all text-sm placeholder-gray-500 focus:border-twitch-purple focus:outline-none">
+                </div>
+
+                <div class="flex items-center gap-3 justify-between md:justify-end">
+                    <div class="bg-black/40 p-1 rounded-2xl border border-white/10 flex items-center">
+                        <button id="view-grid-btn" type="button" class="view-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+                            <span data-icon="grid" data-cls="w-4 h-4"></span>
+                            <span class="hidden sm:inline">شبكي</span>
+                        </button>
+                        <button id="view-list-btn" type="button" class="view-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+                            <span data-icon="list" data-cls="w-4 h-4"></span>
+                            <span class="hidden sm:inline">قائمة</span>
+                        </button>
+                    </div>
+                    <button id="reset-btn" type="button" class="text-xs text-gray-400 hover:text-white px-3 py-2 rounded-2xl bg-black/30 border border-white/10 transition-all flex items-center gap-1.5">
+                        <span data-icon="rotate" data-cls="w-3.5 h-3.5"></span> إعادة ضبط
+                    </button>
+                </div>
+            </div>
+
+            <hr class="border-white/10">
+
+            <div class="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto" id="status-filters">
+                    <span class="text-xs text-gray-400 font-bold ml-2">الحالة:</span>
+                    <button class="pill" data-status="all" type="button">الكل</button>
+                    <button class="pill" data-status="available" type="button">🟢 متاح</button>
+                    <button class="pill" data-status="soon" type="button">🔵 قريباً</button>
+                    <button class="pill" data-status="unavailable" type="button">🔴 غير متاح</button>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto" id="category-filters">
+                    <span class="text-xs text-gray-400 font-bold ml-2">الفئات:</span>
+                    <span id="category-pills" class="contents"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Badges Grid Container -->
+        <div id="badges-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+
+        <!-- Empty State -->
+        <div id="empty-state" hidden class="flex-col items-center justify-center py-16 text-center ios-glass rounded-3xl border border-dashed border-white/20">
+            <div class="w-16 h-16 bg-twitch-purple/20 text-twitch-purpleLight rounded-2xl flex items-center justify-center mb-4 border border-twitch-purple/30">
+                <span data-icon="ghost" data-cls="w-8 h-8"></span>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-1">لم يتم العثور على شارات!</h3>
+            <p class="text-xs text-gray-400 max-w-sm mb-6">لا توجد شارات تتطابق مع البحث أو الفلترة الحالية.</p>
+            <button id="empty-reset" type="button" class="bg-twitch-purple/20 text-twitch-purpleLight hover:bg-twitch-purple hover:text-white border border-twitch-purple/40 font-bold px-4 py-2 rounded-xl text-xs transition-all">
+                مسح الفلاتر
+            </button>
+        </div>
+    </main>
+
+    <!-- Floating Bulk Action Bar -->
+    <div id="bulk-action-bar" hidden class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-float-up w-[92%] max-w-xl">
+        <div class="bg-black/80 backdrop-blur-2xl border border-twitch-neonGreen/40 shadow-ios-float rounded-3xl p-3 sm:p-4 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <button id="select-all-btn" type="button" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white border border-white/15 transition-all">
+                    تحديد الكل
+                </button>
+                <span class="text-xs sm:text-sm font-bold text-gray-200">
+                    تم تحديد <span id="selected-count" class="text-twitch-neonGreen font-code font-extrabold text-base px-1">0</span> شارات
+                </span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="cancel-select-btn" type="button" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-gray-300">
+                    إلغاء
+                </button>
+                <button id="delete-selected-btn" type="button" disabled class="ios-button px-4 py-2 rounded-2xl bg-twitch-neonRed text-white text-xs font-extrabold shadow-lg flex items-center gap-1.5">
+                    <span data-icon="trash" data-cls="w-4 h-4"></span>
+                    <span>حذف المحددة</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="badge-detail-modal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" hidden role="dialog" aria-modal="true">
+        <div class="ios-glass w-full max-w-2xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
+            <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-black/40">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="min-w-0">
+                        <h3 id="detail-title" class="text-lg font-bold text-white truncate">تفاصيل الشارة</h3>
+                        <p id="detail-code" class="text-xs font-code text-twitch-purpleLight" dir="ltr">#CODE</p>
+                    </div>
+                </div>
+                <button type="button" data-close="detail" aria-label="إغلاق" class="w-8 h-8 rounded-full text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all">
+                    <span data-icon="x" data-cls="w-5 h-5"></span>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-5 overflow-y-auto">
+                <div class="flex flex-col items-center justify-center p-6 rounded-3xl badge-display-frame relative overflow-hidden group">
+                    <div id="detail-image-box" class="w-24 h-24 rounded-2xl flex items-center justify-center bg-black/60 border border-twitch-purple/40 shadow-badge-glow transition-transform duration-300 group-hover:scale-110"></div>
+                    <span class="text-[11px] text-gray-400 mt-3 font-code tracking-wider uppercase">معاينة صورة الشارة</span>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3 bg-black/30 p-3.5 rounded-2xl border border-white/10">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-400 font-bold">الحالة:</span>
+                        <span id="detail-status" class="px-3 py-1 rounded-full text-xs font-bold border">متاح</span>
+                    </div>
+                    <div id="detail-category" class="text-xs font-bold px-2.5 py-1 rounded-md border"></div>
+                </div>
+
+                <div id="detail-req-box" hidden>
+                    <h4 class="text-xs font-bold text-gray-400 mb-2">الشرط السريع:</h4>
+                    <p id="detail-req" class="text-sm text-twitch-neonGreen bg-black/20 p-3 rounded-2xl border border-white/10"></p>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-gray-400 mb-2 flex items-center gap-1.5">
+                        <span class="text-twitch-purple" data-icon="info" data-cls="w-4 h-4"></span> الشرح والتفاصيل الكاملة:
+                    </h4>
+                    <p id="detail-desc" class="text-sm text-gray-200 leading-relaxed bg-black/20 p-4 rounded-2xl border border-white/10 whitespace-pre-line"></p>
+                </div>
+
+                <div class="bg-black/40 p-4 rounded-2xl border border-white/10 text-center">
+                    <span id="detail-timer-label" class="text-xs text-gray-400 font-bold block mb-1">الوقت المتبقي:</span>
+                    <div id="detail-timer" class="timer text-xl font-extrabold font-code text-twitch-neonBlue" dir="ltr">--</div>
+                </div>
+            </div>
+
+            <div class="px-6 py-3.5 border-t border-white/10 bg-black/40 flex justify-end">
+                <button type="button" data-close="detail" class="ios-button px-5 py-2 rounded-2xl text-xs font-bold text-white bg-twitch-purple hover:bg-twitch-purpleDark">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add / Edit Modal -->
+    <div id="badge-modal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" hidden role="dialog" aria-modal="true">
+        <div class="ios-glass w-full max-w-xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
+            <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-black/40">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span class="text-twitch-purple" data-icon="shield" data-cls="w-5 h-5"></span>
+                    <span id="modal-title">إضافة شارة جديدة</span>
+                </h3>
+                <button type="button" data-close="form" aria-label="إغلاق" class="w-8 h-8 rounded-full text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all">
+                    <span data-icon="x" data-cls="w-5 h-5"></span>
+                </button>
+            </div>
+
+            <form id="badge-form" class="p-6 space-y-4 overflow-y-auto flex-grow">
+                <input type="hidden" id="badge-id">
+
+                <div class="p-4 rounded-2xl bg-twitch-purple/10 border border-twitch-purple/30 space-y-3">
+                    <label class="block text-xs font-bold text-twitch-purpleLight flex items-center gap-1.5">
+                        <span data-icon="star" data-cls="w-4 h-4"></span> صورة البادج (رفع ملف من الجهاز أو وضع رابط)
+                    </label>
+                    <div class="flex items-center gap-4">
+                        <div id="form-image-preview" class="w-16 h-16 rounded-2xl bg-black/60 border border-white/20 flex-shrink-0 flex items-center justify-center overflow-hidden p-1 shadow-md"></div>
+                        <div class="flex-grow space-y-2 min-w-0">
+                            <input type="file" id="input-image-file" accept="image/*" class="block w-full text-xs text-gray-400 file:ml-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-twitch-purple file:text-white hover:file:bg-twitch-purpleDark cursor-pointer">
+                            <input type="url" id="input-image-url" placeholder="أو انسخ رابط الصورة مباشرة هنا (https://...)" class="field text-xs font-code" dir="ltr">
+                            <button type="button" id="clear-image-btn" class="text-[11px] text-gray-400 hover:text-twitch-neonRed underline">إزالة الصورة</button>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-gray-500">يتم تصغير الصور المرفوعة تلقائياً لتوفير مساحة التخزين.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="input-title" class="block text-xs font-bold text-gray-300 mb-1">اسم الشارة *</label>
+                        <input type="text" id="input-title" required maxlength="80" placeholder="مثال: Elden Ring Drops" class="field">
+                    </div>
+                    <div>
+                        <label for="input-code" class="block text-xs font-bold text-gray-300 mb-1">الرمز القصير (Code) *</label>
+                        <input type="text" id="input-code" required maxlength="20" placeholder="مثال: #ER1" class="field font-code" dir="ltr">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="input-status" class="block text-xs font-bold text-gray-300 mb-1">حالة الشارة *</label>
+                        <select id="input-status" class="field">
+                            <option value="available">🟢 متاح (Available)</option>
+                            <option value="soon">🔵 قريباً (Soon)</option>
+                            <option value="unavailable">🔴 غير متاح (Unavailable)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="input-category" class="block text-xs font-bold text-gray-300 mb-1">الفئة الرئيسية *</label>
+                        <select id="input-category" class="field"></select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="input-ends" class="block text-xs font-bold text-gray-300 mb-1">الموعد (اختياري): نهاية التوفر أو بداية الإطلاق</label>
+                    <input type="datetime-local" id="input-ends" class="field font-code" dir="ltr">
+                </div>
+
+                <div>
+                    <label for="input-req-text" class="block text-xs font-bold text-gray-300 mb-1">نص الشرط السريع</label>
+                    <input type="text" id="input-req-text" maxlength="120" placeholder="مثال: مشاهدة 30 دقيقة" class="field">
+                </div>
+
+                <div>
+                    <label for="input-description" class="block text-xs font-bold text-gray-300 mb-1">الشرح التفصيلي وكيفية التحصيل</label>
+                    <textarea id="input-description" rows="3" placeholder="اكتب الشرح والتوجيهات الكاملة التي تظهر عند الضغط على الشارة..." class="field"></textarea>
+                </div>
+
+                <div class="pt-4 border-t border-white/10 flex items-center justify-between gap-3 flex-wrap">
+                    <button type="button" id="delete-btn" hidden class="ios-button px-4 py-2 rounded-2xl text-xs font-bold text-twitch-neonRed bg-twitch-neonRed/10 border border-twitch-neonRed/40 hover:bg-twitch-neonRed/20 flex items-center gap-1.5">
+                        <span data-icon="trash" data-cls="w-3.5 h-3.5"></span>
+                        <span id="delete-label">حذف الشارة</span>
+                    </button>
+                    <div class="flex items-center gap-3 mr-auto">
+                        <button type="button" data-close="form" class="px-4 py-2 rounded-2xl text-xs font-bold text-gray-400 bg-black/30 border border-white/10">إلغاء</button>
+                        <button type="submit" class="ios-button px-5 py-2 rounded-2xl text-xs font-bold text-white bg-twitch-purple hover:bg-twitch-purpleDark shadow-glass-glow">حفظ الشارة</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" hidden role="alertdialog" aria-modal="true">
+        <div class="ios-glass w-full max-w-sm rounded-3xl border border-white/20 shadow-2xl p-6 text-center">
+            <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-twitch-neonRed/15 text-twitch-neonRed border border-twitch-neonRed/40 flex items-center justify-center">
+                <span data-icon="trash" data-cls="w-6 h-6"></span>
+            </div>
+            <h3 id="confirm-title" class="text-base font-bold text-white mb-1">تأكيد الحذف</h3>
+            <p id="confirm-text" class="text-xs text-gray-400 mb-5"></p>
+            <div class="flex items-center justify-center gap-3">
+                <button type="button" id="confirm-cancel" class="px-4 py-2 rounded-2xl text-xs font-bold text-gray-300 bg-black/30 border border-white/10">إلغاء</button>
+                <button type="button" id="confirm-ok" class="ios-button px-5 py-2 rounded-2xl text-xs font-bold text-white bg-twitch-neonRed">نعم، احذف</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+    'use strict';
+
+    /* ---------- Icons ---------- */
+    const ICONS = {
+        twitch: '<path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.43l-3 3v-3H6.857V1.714h13.714z"/>',
+        shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+        ghost: '<path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/>',
+        star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+        search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+        plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+        grid: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+        list: '<path d="M3 6h.01M3 12h.01M3 18h.01M8 6h13M8 12h13M8 18h13"/>',
+        rotate: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+        x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+        pen: '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+        timer: '<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>',
+        info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+        trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+        checkSquare: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
+    };
+
+    function svg(name, cls, filled) {
+        const body = ICONS[name] || ICONS.shield;
+        const attrs = filled ? 'fill="currentColor"' : 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+        return '<svg class="ico ' + (cls || 'w-5 h-5') + '" viewBox="0 0 24 24" ' + attrs + '>' + body + '</svg>';
+    }
+    function hydrateIcons(root) {
+        (root || document).querySelectorAll('[data-icon]').forEach(el => {
+            el.innerHTML = svg(el.dataset.icon, el.dataset.cls, el.dataset.fill === '1');
+        });
+    }
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    /* ---------- Data ---------- */
+    const STORE_KEY = 'twitch_badges_v4_img_data';
+    const VIEW_KEY = 'twitch_badges_view_mode';
+    const SAMPLE_BADGE_IMG = 'https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85601/3';
+
+    const categories = [
+        { id: 'free', label: '🎁 مجانية', color: '#34d399' },
+        { id: 'custom_streams', label: '📺 بثوث مخصصة', color: '#ff007f' },
+        { id: 'all_games', label: '🎮 جميع الألعاب', color: '#3a86ff' }
+    ];
+    const STATUS = {
+        available: { label: 'متاح', cls: 'bg-twitch-neonGreen/10 text-twitch-neonGreen border-twitch-neonGreen/40' },
+        soon: { label: 'قريباً', cls: 'bg-twitch-neonBlue/10 text-twitch-neonBlue border-twitch-neonBlue/40' },
+        unavailable: { label: 'غير متاح', cls: 'bg-twitch-neonRed/10 text-twitch-neonRed border-twitch-neonRed/40' }
+    };
+
+    function defaultBadges() {
+        return [
+            { id: '1', title: 'Witcher Drops Badge', code: '#W3H', status: 'available', category: 'custom_streams', imageUrl: SAMPLE_BADGE_IMG, reqText: 'مشاهدة 45 دقيقة', description: 'شارة مخصصة رائعة تظهر بوضوح عند رفع رابط صورتها بنفس هذا الأسلوب المطور.', endsAt: null },
+            { id: '2', title: 'شمعة الهالوين', code: '#FREE1', status: 'available', category: 'free', imageUrl: '', reqText: 'مجانية للجميع', description: 'شارة هالوين مخصصة مجانية لجميع المتابعين.', endsAt: null }
+        ];
+    }
+
+    function loadBadges() {
+        try {
+            const raw = localStorage.getItem(STORE_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) return parsed;
+            }
+        } catch (e) { /* ignore */ }
+        return defaultBadges();
+    }
+
+    function persist() {
+        try {
+            localStorage.setItem(STORE_KEY, JSON.stringify(badges));
+            return true;
+        } catch (e) {
+            toast('تعذر الحفظ: مساحة التخزين ممتلئة. جرّب صورة أصغر أو استخدم رابط صورة.', true);
+            return false;
+        }
+    }
+
+    function categoryTag(id) {
+        const c = categories.find(x => x.id === id) || categories[0];
+        return { label: c.label, style: 'color:' + c.color + ';background:' + c.color + '1a;border-color:' + c.color + '4d' };
+    }
+
+    /* ---------- State ---------- */
+    let badges = loadBadges();
+    let selectedBadgeIds = new Set();
+    let isSelectMode = false;
+    let statusFilter = 'all';
+    let categoryFilter = 'all';
+    let searchQuery = '';
+    let viewMode = 'grid';
+    try { const v = localStorage.getItem(VIEW_KEY); if (v === 'list' || v === 'grid') viewMode = v; } catch (e) {}
+    let detailId = null;
+    let currentUploadedImg = '';
+    let confirmCallback = null;
+
+    const $ = id => document.getElementById(id);
+
+    /* ---------- Helpers ---------- */
+    let toastTimer = null;
+    function toast(msg, isError) {
+        const t = $('toast');
+        t.textContent = msg;
+        t.classList.toggle('error', !!isError);
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), isError ? 4500 : 2200);
+    }
+
+    function renderBadgeImage(url, cls) {
+        if (url && url.trim() !== '') {
+            return '<img data-badge-img="' + esc(cls || 'w-10 h-10') + '" src="' + esc(url) + '" class="object-contain drop-shadow-[0_0_8px_rgba(145,71,255,0.6)] ' + (cls || 'w-10 h-10') + '" alt="شارة" loading="lazy">';
+        }
+        return svg('shield', (cls || 'w-8 h-8') + ' text-twitch-purpleLight');
+    }
+
+    // Fallback when an image URL fails to load
+    document.addEventListener('error', e => {
+        const img = e.target;
+        if (img && img.tagName === 'IMG' && img.dataset.badgeImg) {
+            const holder = document.createElement('span');
+            holder.innerHTML = svg('shield', img.dataset.badgeImg + ' text-twitch-purpleLight');
+            img.replaceWith(holder.firstChild);
+        }
+    }, true);
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function formatRemaining(ms) {
+        const s = Math.floor(ms / 1000);
+        const d = Math.floor(s / 86400);
+        const h = Math.floor((s % 86400) / 3600);
+        const m = Math.floor((s % 3600) / 60);
+        const sec = s % 60;
+        return (d > 0 ? d + 'd ' : '') + pad(h) + 'h ' + pad(m) + 'm ' + pad(sec) + 's';
+    }
+    function toLocalInputValue(ts) {
+        const d = new Date(ts);
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    /* ---------- Stats ---------- */
+    function updateStats() {
+        const counts = { available: 0, soon: 0, unavailable: 0 };
+        badges.forEach(b => { if (counts[b.status] !== undefined) counts[b.status]++; });
+        ['available', 'soon', 'unavailable'].forEach(k => {
+            $('stat-' + k).textContent = counts[k];
+            $('stat-' + k + '-m').textContent = counts[k];
+        });
+    }
+
+    /* ---------- Filtering ---------- */
+    function getFiltered() {
+        const q = searchQuery.trim().toLowerCase();
+        return badges.filter(b => {
+            if (statusFilter !== 'all' && b.status !== statusFilter) return false;
+            if (categoryFilter !== 'all' && b.category !== categoryFilter) return false;
+            if (q) {
+                const hay = [b.title, b.code, b.reqText, b.description].join(' ').toLowerCase();
+                if (!hay.includes(q)) return false;
+            }
+            return true;
+        });
+    }
+
+    function updatePressedStates() {
+        document.querySelectorAll('#status-filters [data-status]').forEach(p => p.setAttribute('aria-pressed', String(p.dataset.status === statusFilter)));
+        document.querySelectorAll('#category-pills [data-category]').forEach(p => p.setAttribute('aria-pressed', String(p.dataset.category === categoryFilter)));
+        $('view-grid-btn').setAttribute('aria-pressed', String(viewMode === 'grid'));
+        $('view-list-btn').setAttribute('aria-pressed', String(viewMode === 'list'));
+    }
+
+    function renderCategoryPills() {
+        $('category-pills').innerHTML = '<button class="pill" data-category="all" type="button">الكل</button>' +
+            categories.map(c => '<button class="pill" data-category="' + esc(c.id) + '" type="button">' + esc(c.label) + '</button>').join('');
+    }
+
+    /* ---------- Rendering ---------- */
+    function timerChip(b) {
+        if (!b.endsAt) return '';
+        return '<span class="font-code text-[11px] text-twitch-neonBlue" dir="ltr" data-card-timer="' + esc(b.endsAt) + '"></span>';
+    }
+
+    function gridCard(b) {
+        const st = STATUS[b.status] || STATUS.available;
+        const cat = categoryTag(b.category);
+        const isSelected = selectedBadgeIds.has(b.id);
+
+        return '' +
+        '<div data-open="' + esc(b.id) + '" class="badge-card ios-glass rounded-3xl p-4 flex flex-col justify-between cursor-pointer relative group ' + (isSelected ? 'selected' : '') + '">' +
+            (isSelectMode ? '<input type="checkbox" data-select-id="' + esc(b.id) + '" ' + (isSelected ? 'checked' : '') + ' aria-label="تحديد" class="absolute top-3 left-3 w-5 h-5 accent-twitch-purple cursor-pointer z-10">' : '') +
+            '<div>' +
+                '<div class="flex items-center justify-between gap-2 mb-3">' +
+                    '<div class="w-14 h-14 bg-black/60 rounded-2xl flex items-center justify-center border border-twitch-purple/30 group-hover:scale-110 transition-transform shadow-badge-glow">' + renderBadgeImage(b.imageUrl, 'w-10 h-10') + '</div>' +
+                    '<div class="flex flex-col items-end gap-1">' +
+                        '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ' + st.cls + '">' + st.label + '</span>' +
+                        '<span class="font-code text-xs text-gray-400 bg-black/40 px-2 py-0.5 rounded-md border border-white/10" dir="ltr">' + esc(b.code) + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="mb-2"><span class="text-[11px] font-bold px-2 py-0.5 rounded-md border" style="' + cat.style + '">' + esc(cat.label) + '</span></div>' +
+                '<h3 class="font-bold text-white text-base mb-1 group-hover:text-twitch-purpleLight transition-colors">' + esc(b.title) + '</h3>' +
+                '<p class="text-xs text-gray-400 mb-2 truncate">' + esc(b.reqText || 'انقر للرؤية والتفاصيل') + '</p>' +
+            '</div>' +
+            '<div class="pt-3 border-t border-white/10 mt-2 flex items-center justify-between text-xs text-gray-400 gap-2">' +
+                (b.endsAt ? timerChip(b) : '<span class="text-[11px]">انقر للتفاصيل 🔍</span>') +
+                '<button type="button" data-edit="' + esc(b.id) + '" aria-label="تعديل" class="hover:text-white p-1 rounded-lg hover:bg-white/10">' + svg('pen', 'w-4 h-4') + '</button>' +
+            '</div>' +
+        '</div>';
+    }
+
+    function listCard(b) {
+        const st = STATUS[b.status] || STATUS.available;
+        const isSelected = selectedBadgeIds.has(b.id);
+        return '' +
+        '<div data-open="' + esc(b.id) + '" class="badge-card ios-glass rounded-2xl p-3.5 flex items-center justify-between gap-4 cursor-pointer ' + (isSelected ? 'selected' : '') + '">' +
+            '<div class="flex items-center gap-3 min-w-0">' +
+                (isSelectMode ? '<input type="checkbox" data-select-id="' + esc(b.id) + '" ' + (isSelected ? 'checked' : '') + ' aria-label="تحديد" class="w-5 h-5 accent-twitch-purple cursor-pointer">' : '') +
+                '<div class="w-12 h-12 bg-black/50 rounded-xl flex items-center justify-center border border-twitch-purple/30 flex-shrink-0 shadow-md">' + renderBadgeImage(b.imageUrl, 'w-8 h-8') + '</div>' +
+                '<div class="min-w-0">' +
+                    '<h3 class="font-bold text-white text-sm truncate">' + esc(b.title) + '</h3>' +
+                    '<div class="flex items-center gap-2 flex-wrap">' +
+                        '<span class="font-code text-xs text-gray-400" dir="ltr">' + esc(b.code) + '</span>' +
+                        '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ' + st.cls + '">' + st.label + '</span>' +
+                        timerChip(b) +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<button type="button" data-edit="' + esc(b.id) + '" aria-label="تعديل" class="p-1.5 hover:text-white text-gray-400 hover:bg-white/10 rounded-lg">' + svg('pen', 'w-4 h-4') + '</button>' +
+        '</div>';
+    }
+
+    function render() {
+        const container = $('badges-container');
+        const empty = $('empty-state');
+        const list = getFiltered();
+
+        updateStats();
+        updatePressedStates();
+        updateBulkBar();
+
+        if (list.length === 0) {
+            container.innerHTML = '';
+            empty.hidden = false;
+            return;
+        }
+        empty.hidden = true;
+
+        container.className = viewMode === 'grid'
+            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'
+            : 'flex flex-col gap-3.5';
+        container.innerHTML = list.map(b => viewMode === 'grid' ? gridCard(b) : listCard(b)).join('');
+        tickTimers();
+    }
+
+    /* ---------- Timers ---------- */
+    function tickTimers() {
+        const now = Date.now();
+        document.querySelectorAll('[data-card-timer]').forEach(el => {
+            const end = Number(el.dataset.cardTimer);
+            const diff = end - now;
+            if (diff <= 0) { el.textContent = 'انتهى'; el.className = 'font-code text-[11px] text-twitch-neonRed'; }
+            else { el.textContent = '⏳ ' + formatRemaining(diff); el.className = 'font-code text-[11px] text-twitch-neonBlue'; }
+        });
+        if (detailId && !$('badge-detail-modal').hidden) updateDetailTimer();
+    }
+
+    function updateDetailTimer() {
+        const b = badges.find(x => x.id === detailId);
+        const el = $('detail-timer');
+        const label = $('detail-timer-label');
+        if (!b) return;
+        if (!b.endsAt) {
+            label.textContent = 'الموعد:';
+            el.textContent = 'لم يُحدد موعد';
+            el.classList.remove('expired');
+            el.className = 'timer text-base font-bold text-gray-400';
+            return;
+        }
+        const diff = b.endsAt - Date.now();
+        label.textContent = b.status === 'soon' ? 'يبدأ خلال:' : 'ينتهي خلال:';
+        if (diff <= 0) {
+            el.textContent = 'انتهى الوقت';
+            el.className = 'timer expired text-xl font-extrabold font-code';
+        } else {
+            el.textContent = formatRemaining(diff);
+            el.className = 'timer text-xl font-extrabold font-code text-twitch-neonBlue';
+        }
+    }
+    setInterval(tickTimers, 1000);
+
+    /* ---------- Detail modal ---------- */
+    function openDetail(id) {
+        const b = badges.find(x => x.id === id);
+        if (!b) return;
+        detailId = id;
+        const st = STATUS[b.status] || STATUS.available;
+        const cat = categoryTag(b.category);
+
+        $('detail-title').textContent = b.title;
+        $('detail-code').textContent = b.code;
+        $('detail-desc').textContent = b.description || 'لا يوجد شرح مضاف.';
+        $('detail-image-box').innerHTML = renderBadgeImage(b.imageUrl, 'w-16 h-16');
+
+        const statusEl = $('detail-status');
+        statusEl.textContent = st.label;
+        statusEl.className = 'px-3 py-1 rounded-full text-xs font-bold border ' + st.cls;
+
+        const catEl = $('detail-category');
+        catEl.textContent = cat.label;
+        catEl.setAttribute('style', cat.style);
+
+        $('detail-req-box').hidden = !b.reqText;
+        $('detail-req').textContent = b.reqText || '';
+
+        updateDetailTimer();
+        $('badge-detail-modal').hidden = false;
+    }
+    function closeDetail() {
+        $('badge-detail-modal').hidden = true;
+        detailId = null;
+    }
+
+    /* ---------- Add / Edit modal ---------- */
+    function openBadgeModal(b) {
+        $('badge-form').reset();
+        currentUploadedImg = b ? (b.imageUrl && b.imageUrl.startsWith('data:') ? b.imageUrl : '') : '';
+        $('input-category').innerHTML = categories.map(c => '<option value="' + c.id + '">' + c.label + '</option>').join('');
+        $('badge-id').value = b ? b.id : '';
+        $('modal-title').textContent = b ? 'تعديل الشارة' : 'إضافة شارة جديدة';
+        $('delete-btn').hidden = !b;
+
+        if (b) {
+            $('input-title').value = b.title;
+            $('input-code').value = b.code;
+            $('input-status').value = b.status;
+            $('input-category').value = b.category;
+            $('input-image-url').value = (b.imageUrl && !b.imageUrl.startsWith('data:')) ? b.imageUrl : '';
+            $('input-req-text').value = b.reqText || '';
+            $('input-description').value = b.description || '';
+            $('input-ends').value = b.endsAt ? toLocalInputValue(b.endsAt) : '';
+        }
+
+        updateModalImagePreview();
+        $('badge-modal').hidden = false;
+        setTimeout(() => $('input-title').focus(), 50);
+    }
+    function closeForm() { $('badge-modal').hidden = true; }
+
+    function updateModalImagePreview() {
+        const url = $('input-image-url').value.trim() || currentUploadedImg;
+        $('form-image-preview').innerHTML = renderBadgeImage(url, 'w-12 h-12');
+    }
+
+    // Downscale uploaded images to keep localStorage small
+    function compressImage(file, maxSize) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onerror = () => reject(new Error('read'));
+            reader.onload = () => {
+                const img = new Image();
+                img.onerror = () => reject(new Error('decode'));
+                img.onload = () => {
+                    const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+                    const w = Math.max(1, Math.round(img.width * scale));
+                    const h = Math.max(1, Math.round(img.height * scale));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    $('input-image-file').addEventListener('change', async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) { toast('الرجاء اختيار ملف صورة صالح.', true); e.target.value = ''; return; }
+        try {
+            currentUploadedImg = await compressImage(file, 256);
+            $('input-image-url').value = '';
+            updateModalImagePreview();
+        } catch (err) {
+            toast('تعذر قراءة الصورة، جرّب ملفاً آخر.', true);
+        }
+        e.target.value = '';
+    });
+
+    $('input-image-url').addEventListener('input', () => {
+        if ($('input-image-url').value.trim()) currentUploadedImg = '';
+        updateModalImagePreview();
+    });
+
+    $('clear-image-btn').addEventListener('click', () => {
+        currentUploadedImg = '';
+        $('input-image-url').value = '';
+        $('input-image-file').value = '';
+        updateModalImagePreview();
+    });
+
+    $('badge-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const id = $('badge-id').value;
+        const url = $('input-image-url').value.trim();
+        if (url && !/^https?:\/\//i.test(url)) { toast('رابط الصورة يجب أن يبدأ بـ http:// أو https://', true); return; }
+
+        let code = $('input-code').value.trim();
+        if (code && !code.startsWith('#')) code = '#' + code;
+
+        const endsRaw = $('input-ends').value;
+        const endsAt = endsRaw ? new Date(endsRaw).getTime() : null;
+
+        const data = {
+            id: id || String(Date.now()),
+            title: $('input-title').value.trim(),
+            code: code,
+            status: $('input-status').value,
+            category: $('input-category').value,
+            imageUrl: url || currentUploadedImg,
+            reqText: $('input-req-text').value.trim(),
+            description: $('input-description').value.trim(),
+            endsAt: (endsAt && !isNaN(endsAt)) ? endsAt : null
+        };
+        if (!data.title || !data.code) { toast('الاسم والرمز مطلوبان.', true); return; }
+
+        const prev = badges;
+        badges = id ? badges.map(b => b.id === id ? data : b) : [data].concat(badges);
+
+        if (!persist()) { badges = prev; return; }
+        render();
+        closeForm();
+        toast(id ? 'تم حفظ التعديلات' : 'تمت إضافة الشارة');
+    });
+
+    /* ---------- Confirm dialog ---------- */
+    function askConfirm(title, text, cb) {
+        $('confirm-title').textContent = title;
+        $('confirm-text').textContent = text;
+        confirmCallback = cb;
+        $('confirm-modal').hidden = false;
+    }
+    function closeConfirm() { $('confirm-modal').hidden = true; confirmCallback = null; }
+    $('confirm-cancel').addEventListener('click', closeConfirm);
+    $('confirm-ok').addEventListener('click', () => {
+        const cb = confirmCallback;
+        closeConfirm();
+        if (cb) cb();
+    });
+
+    function deleteBadges(ids) {
+        const set = new Set(ids);
+        const prev = badges;
+        badges = badges.filter(b => !set.has(b.id));
+        if (!persist()) { badges = prev; return false; }
+        ids.forEach(i => selectedBadgeIds.delete(i));
+        return true;
+    }
+
+    $('delete-btn').addEventListener('click', () => {
+        const id = $('badge-id').value;
+        if (!id) return;
+        const b = badges.find(x => x.id === id);
+        askConfirm('حذف الشارة', 'سيتم حذف "' + (b ? b.title : '') + '" نهائياً. هل أنت متأكد؟', () => {
+            if (deleteBadges([id])) { closeForm(); render(); toast('تم حذف الشارة'); }
+        });
+    });
+
+    /* ---------- Select mode / bulk ---------- */
+    function updateBulkBar() {
+        $('bulk-action-bar').hidden = !isSelectMode;
+        $('selected-count').textContent = selectedBadgeIds.size;
+        $('delete-selected-btn').disabled = selectedBadgeIds.size === 0;
+        const visible = getFiltered();
+        const allSelected = visible.length > 0 && visible.every(b => selectedBadgeIds.has(b.id));
+        $('select-all-btn').textContent = allSelected ? 'إلغاء تحديد الكل' : 'تحديد الكل';
+        $('select-mode-btn-text').textContent = isSelectMode ? 'إنهاء التحديد' : 'تحديد وحذف جماعي';
+    }
+
+    function setSelectMode(on) {
+        isSelectMode = on;
+        if (!on) selectedBadgeIds.clear();
+        render();
+    }
+
+    $('toggle-select-mode-btn').addEventListener('click', () => setSelectMode(!isSelectMode));
+    $('cancel-select-btn').addEventListener('click', () => setSelectMode(false));
+
+    $('select-all-btn').addEventListener('click', () => {
+        const visible = getFiltered();
+        const allSelected = visible.length > 0 && visible.every(b => selectedBadgeIds.has(b.id));
+        visible.forEach(b => allSelected ? selectedBadgeIds.delete(b.id) : selectedBadgeIds.add(b.id));
+        render();
+    });
+
+    $('delete-selected-btn').addEventListener('click', () => {
+        const n = selectedBadgeIds.size;
+        if (!n) return;
+        askConfirm('حذف المحددة', 'سيتم حذف ' + n + ' شارة نهائياً. هل أنت متأكد؟', () => {
+            if (deleteBadges(Array.from(selectedBadgeIds))) {
+                setSelectMode(false);
+                toast('تم حذف ' + n + ' شارة');
+            }
+        });
+    });
+
+    /* ---------- Filters / search / view ---------- */
+    let searchDebounce = null;
+    $('search-input').addEventListener('input', e => {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => { searchQuery = e.target.value; render(); }, 120);
+    });
+
+    $('status-filters').addEventListener('click', e => {
+        const btn = e.target.closest('[data-status]');
+        if (!btn) return;
+        statusFilter = btn.dataset.status;
+        render();
+    });
+    $('category-filters').addEventListener('click', e => {
+        const btn = e.target.closest('[data-category]');
+        if (!btn) return;
+        categoryFilter = btn.dataset.category;
+        render();
+    });
+
+    function setView(mode) {
+        viewMode = mode;
+        try { localStorage.setItem(VIEW_KEY, mode); } catch (e) {}
+        render();
+    }
+    $('view-grid-btn').addEventListener('click', () => setView('grid'));
+    $('view-list-btn').addEventListener('click', () => setView('list'));
+
+    function resetFilters() {
+        statusFilter = 'all';
+        categoryFilter = 'all';
+        searchQuery = '';
+        $('search-input').value = '';
+        render();
+    }
+    $('reset-btn').addEventListener('click', resetFilters);
+    $('empty-reset').addEventListener('click', resetFilters);
+
+    /* ---------- Card interactions ---------- */
+    $('add-btn').addEventListener('click', () => openBadgeModal(null));
+
+    $('badges-container').addEventListener('click', e => {
+        const edit = e.target.closest('[data-edit]');
+        if (edit) {
+            e.stopPropagation();
+            openBadgeModal(badges.find(x => x.id === edit.dataset.edit));
+            return;
+        }
+        const checkbox = e.target.closest('[data-select-id]');
+        if (checkbox) {
+            e.stopPropagation();
+            const id = checkbox.dataset.selectId;
+            if (checkbox.checked) selectedBadgeIds.add(id); else selectedBadgeIds.delete(id);
+            render();
+            return;
+        }
+        const card = e.target.closest('[data-open]');
+        if (!card) return;
+        const id = card.dataset.open;
+        if (isSelectMode) {
+            if (selectedBadgeIds.has(id)) selectedBadgeIds.delete(id); else selectedBadgeIds.add(id);
+            render();
+        } else {
+            openDetail(id);
+        }
+    });
+
+    /* ---------- Closing modals: buttons, backdrop, Esc ---------- */
+    document.querySelectorAll('[data-close="detail"]').forEach(b => b.addEventListener('click', closeDetail));
+    document.querySelectorAll('[data-close="form"]').forEach(b => b.addEventListener('click', closeForm));
+
+    $('badge-detail-modal').addEventListener('mousedown', e => { if (e.target === e.currentTarget) closeDetail(); });
+    $('badge-modal').addEventListener('mousedown', e => { if (e.target === e.currentTarget) closeForm(); });
+    $('confirm-modal').addEventListener('mousedown', e => { if (e.target === e.currentTarget) closeConfirm(); });
+
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        if (!$('confirm-modal').hidden) { closeConfirm(); return; }
+        if (!$('badge-modal').hidden) { closeForm(); return; }
+        if (!$('badge-detail-modal').hidden) { closeDetail(); return; }
+        if (isSelectMode) setSelectMode(false);
+    });
+
+    /* ---------- Init ---------- */
+    hydrateIcons();
+    renderCategoryPills();
+    render();
+})();
+</script>
+</body>
+</html>
