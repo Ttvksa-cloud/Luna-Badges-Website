@@ -419,6 +419,10 @@
                         <label for="input-code" class="block text-xs font-bold text-gray-300 mb-1">الرمز القصير (Code) *</label>
                         <input type="text" id="input-code" required maxlength="20" placeholder="مثال: #ER1" class="field font-code" dir="ltr">
                     </div>
+                    <div>
+    <label for="input-game-name" class="block text-xs font-bold text-gray-300 mb-1">اسم اللعبة (اختياري)</label>
+    <input type="text" id="input-game-name" placeholder="مثال: Valorant, GTA V..." class="field">
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -525,9 +529,11 @@
     const SAMPLE_BADGE_IMG = 'https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85601/3';
 
     const categories = [
-        { id: 'free', label: '🎁 مجانية', color: '#34d399' },
-        { id: 'custom_streams', label: '📺 بثوث مخصصة', color: '#ff007f' },
-        { id: 'all_games', label: '🎮 جميع الألعاب', color: '#3a86ff' }
+  { label: '🎬 بادجات كليبات', color: '#a970ff' },
+  { label: '🎁 بادجات مجانية', color: '#34d399' },
+  { label: '⭐️ اشتراك / إهداء', color: '#f59e0b' },
+  { label: '🛠️ بادجات مخصصة', color: '#ff007f' }
+]
     ];
     const STATUS = {
         available: { label: 'متاح', cls: 'bg-twitch-neonGreen/10 text-twitch-neonGreen border-twitch-neonGreen/40' },
