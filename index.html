@@ -283,7 +283,15 @@
                 <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto" id="category-filters">
                     <span class="text-xs text-gray-400 font-bold ml-2">الفئات:</span>
                     <span id="category-pills" class="contents"></span>
+                    <button id="manage-cats-btn" type="button" class="pill flex items-center gap-1.5" aria-label="إدارة الفئات">
+                        <span data-icon="pen" data-cls="w-3.5 h-3.5"></span> إدارة الفئات
+                    </button>
                 </div>
+            </div>
+
+            <div id="game-filters" hidden class="flex flex-wrap items-center gap-2 w-full">
+                <span class="text-xs text-gray-400 font-bold ml-2">الألعاب:</span>
+                <span id="game-pills" class="contents"></span>
             </div>
         </section>
 
@@ -355,6 +363,11 @@
                     <div id="detail-category" class="text-xs font-bold px-2.5 py-1 rounded-md border"></div>
                 </div>
 
+                <div id="detail-game-box" hidden class="flex items-center gap-2 bg-black/30 p-3.5 rounded-2xl border border-white/10">
+                    <span class="text-xs text-gray-400 font-bold">🎮 اللعبة:</span>
+                    <span id="detail-game" class="text-sm font-bold text-white"></span>
+                </div>
+
                 <div id="detail-req-box" hidden>
                     <h4 class="text-xs font-bold text-gray-400 mb-2">الشرط السريع:</h4>
                     <p id="detail-req" class="text-sm text-twitch-neonGreen bg-black/20 p-3 rounded-2xl border border-white/10"></p>
@@ -419,9 +432,10 @@
                         <label for="input-code" class="block text-xs font-bold text-gray-300 mb-1">الرمز القصير (Code) *</label>
                         <input type="text" id="input-code" required maxlength="20" placeholder="مثال: #ER1" class="field font-code" dir="ltr">
                     </div>
-                    <div>
-    <label for="input-game-name" class="block text-xs font-bold text-gray-300 mb-1">اسم اللعبة (اختياري)</label>
-    <input type="text" id="input-game-name" placeholder="مثال: Valorant, GTA V..." class="field">
+                    <div class="sm:col-span-2">
+                        <label for="input-game-name" class="block text-xs font-bold text-gray-300 mb-1">🎮 اسم اللعبة (اختياري)</label>
+                        <input type="text" id="input-game-name" list="game-list" maxlength="60" placeholder="مثال: Valorant, GTA V..." class="field">
+                        <datalist id="game-list"></datalist>
                     </div>
                 </div>
 
@@ -466,6 +480,27 @@
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Categories Manager Modal -->
+    <div id="cats-modal" class="modal fixed inset-0 z-[55] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" hidden role="dialog" aria-modal="true">
+        <div class="ios-glass w-full max-w-md rounded-3xl border border-white/20 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-black/40">
+                <h3 class="text-lg font-bold text-white">إدارة الفئات</h3>
+                <button type="button" id="cats-close" aria-label="إغلاق" class="w-8 h-8 rounded-full text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all">
+                    <span data-icon="x" data-cls="w-5 h-5"></span>
+                </button>
+            </div>
+            <div class="p-5 space-y-4 overflow-y-auto">
+                <form id="cat-form" class="flex items-center gap-2">
+                    <input type="color" id="cat-color" value="#a970ff" class="w-10 h-10 rounded-xl bg-transparent border border-white/20 cursor-pointer flex-shrink-0" aria-label="لون الفئة">
+                    <input type="text" id="cat-name" maxlength="40" required placeholder="اسم الفئة (يمكنك إضافة إيموجي)" class="field">
+                    <button type="submit" class="ios-button px-4 py-2.5 rounded-2xl text-xs font-bold text-white bg-twitch-purple hover:bg-twitch-purpleDark flex-shrink-0">إضافة</button>
+                </form>
+                <ul id="cats-list" class="space-y-2"></ul>
+                <p class="text-[11px] text-gray-500">عند حذف فئة، تبقى الشارات التابعة لها وتظهر بدون فئة.</p>
+            </div>
         </div>
     </div>
 
@@ -528,13 +563,31 @@
     const VIEW_KEY = 'twitch_badges_view_mode';
     const SAMPLE_BADGE_IMG = 'https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85601/3';
 
-    const categories = [
-  { label: '🎬 بادجات كليبات', color: '#a970ff' },
-  { label: '🎁 بادجات مجانية', color: '#34d399' },
-  { label: '⭐️ اشتراك / إهداء', color: '#f59e0b' },
-  { label: '🛠️ بادجات مخصصة', color: '#ff007f' }
-]
-    ];
+    const CAT_KEY = 'twitch_badges_categories_v1';
+    const CAT_COLORS = ['#a970ff', '#34d399', '#f59e0b', '#ff007f', '#3a86ff', '#00f5d4', '#ff5c5c', '#f472b6'];
+    function defaultCategories() {
+        return [
+            { id: 'clips', label: '🎬 بادجات كليبات', color: '#a970ff' },
+            { id: 'free', label: '🎁 بادجات مجانية', color: '#34d399' },
+            { id: 'sub', label: '⭐️ اشتراك / إهداء', color: '#f59e0b' },
+            { id: 'custom_streams', label: '🛠️ بادجات مخصصة', color: '#ff007f' }
+        ];
+    }
+    function loadCategories() {
+        try {
+            const raw = localStorage.getItem(CAT_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) return parsed;
+            }
+        } catch (e) { /* ignore */ }
+        return defaultCategories();
+    }
+    let categories = loadCategories();
+    function saveCategories() {
+        try { localStorage.setItem(CAT_KEY, JSON.stringify(categories)); return true; }
+        catch (e) { toast('تعذر حفظ الفئات: مساحة التخزين ممتلئة.', true); return false; }
+    }
     const STATUS = {
         available: { label: 'متاح', cls: 'bg-twitch-neonGreen/10 text-twitch-neonGreen border-twitch-neonGreen/40' },
         soon: { label: 'قريباً', cls: 'bg-twitch-neonBlue/10 text-twitch-neonBlue border-twitch-neonBlue/40' },
@@ -543,7 +596,7 @@
 
     function defaultBadges() {
         return [
-            { id: '1', title: 'Witcher Drops Badge', code: '#W3H', status: 'available', category: 'custom_streams', imageUrl: SAMPLE_BADGE_IMG, reqText: 'مشاهدة 45 دقيقة', description: 'شارة مخصصة رائعة تظهر بوضوح عند رفع رابط صورتها بنفس هذا الأسلوب المطور.', endsAt: null },
+            { id: '1', title: 'Witcher Drops Badge', code: '#W3H', status: 'available', category: 'custom_streams', gameName: 'The Witcher 3', imageUrl: SAMPLE_BADGE_IMG, reqText: 'مشاهدة 45 دقيقة', description: 'شارة مخصصة رائعة تظهر بوضوح عند رفع رابط صورتها بنفس هذا الأسلوب المطور.', endsAt: null },
             { id: '2', title: 'شمعة الهالوين', code: '#FREE1', status: 'available', category: 'free', imageUrl: '', reqText: 'مجانية للجميع', description: 'شارة هالوين مخصصة مجانية لجميع المتابعين.', endsAt: null }
         ];
     }
@@ -570,7 +623,7 @@
     }
 
     function categoryTag(id) {
-        const c = categories.find(x => x.id === id) || categories[0];
+        const c = categories.find(x => x.id === id) || { label: 'بدون فئة', color: '#9ca3af' };
         return { label: c.label, style: 'color:' + c.color + ';background:' + c.color + '1a;border-color:' + c.color + '4d' };
     }
 
@@ -580,6 +633,7 @@
     let isSelectMode = false;
     let statusFilter = 'all';
     let categoryFilter = 'all';
+    let gameFilter = 'all';
     let searchQuery = '';
     let viewMode = 'grid';
     try { const v = localStorage.getItem(VIEW_KEY); if (v === 'list' || v === 'grid') viewMode = v; } catch (e) {}
@@ -647,8 +701,9 @@
         return badges.filter(b => {
             if (statusFilter !== 'all' && b.status !== statusFilter) return false;
             if (categoryFilter !== 'all' && b.category !== categoryFilter) return false;
+            if (gameFilter !== 'all' && (b.gameName || '') !== gameFilter) return false;
             if (q) {
-                const hay = [b.title, b.code, b.reqText, b.description].join(' ').toLowerCase();
+                const hay = [b.title, b.code, b.reqText, b.description, b.gameName].join(' ').toLowerCase();
                 if (!hay.includes(q)) return false;
             }
             return true;
@@ -658,6 +713,7 @@
     function updatePressedStates() {
         document.querySelectorAll('#status-filters [data-status]').forEach(p => p.setAttribute('aria-pressed', String(p.dataset.status === statusFilter)));
         document.querySelectorAll('#category-pills [data-category]').forEach(p => p.setAttribute('aria-pressed', String(p.dataset.category === categoryFilter)));
+        document.querySelectorAll('#game-pills [data-game]').forEach(p => p.setAttribute('aria-pressed', String(p.dataset.game === gameFilter)));
         $('view-grid-btn').setAttribute('aria-pressed', String(viewMode === 'grid'));
         $('view-list-btn').setAttribute('aria-pressed', String(viewMode === 'list'));
     }
@@ -665,6 +721,20 @@
     function renderCategoryPills() {
         $('category-pills').innerHTML = '<button class="pill" data-category="all" type="button">الكل</button>' +
             categories.map(c => '<button class="pill" data-category="' + esc(c.id) + '" type="button">' + esc(c.label) + '</button>').join('');
+    }
+
+    function gameList() {
+        const set = new Set();
+        badges.forEach(b => { if (b.gameName && b.gameName.trim()) set.add(b.gameName.trim()); });
+        return Array.from(set).sort((a, b) => a.localeCompare(b));
+    }
+    function renderGamePills() {
+        const games = gameList();
+        if (gameFilter !== 'all' && !games.includes(gameFilter)) gameFilter = 'all';
+        $('game-filters').hidden = games.length === 0;
+        $('game-pills').innerHTML = '<button class="pill" data-game="all" type="button">الكل</button>' +
+            games.map(g => '<button class="pill" data-game="' + esc(g) + '" type="button">🎮 ' + esc(g) + '</button>').join('');
+        $('game-list').innerHTML = games.map(g => '<option value="' + esc(g) + '"></option>').join('');
     }
 
     /* ---------- Rendering ---------- */
@@ -689,7 +759,8 @@
                         '<span class="font-code text-xs text-gray-400 bg-black/40 px-2 py-0.5 rounded-md border border-white/10" dir="ltr">' + esc(b.code) + '</span>' +
                     '</div>' +
                 '</div>' +
-                '<div class="mb-2"><span class="text-[11px] font-bold px-2 py-0.5 rounded-md border" style="' + cat.style + '">' + esc(cat.label) + '</span></div>' +
+                '<div class="mb-2 flex flex-wrap gap-1.5"><span class="text-[11px] font-bold px-2 py-0.5 rounded-md border" style="' + cat.style + '">' + esc(cat.label) + '</span>' +
+                    (b.gameName ? '<span class="text-[11px] font-bold px-2 py-0.5 rounded-md border border-white/15 text-gray-200 bg-white/5">🎮 ' + esc(b.gameName) + '</span>' : '') + '</div>' +
                 '<h3 class="font-bold text-white text-base mb-1 group-hover:text-twitch-purpleLight transition-colors">' + esc(b.title) + '</h3>' +
                 '<p class="text-xs text-gray-400 mb-2 truncate">' + esc(b.reqText || 'انقر للرؤية والتفاصيل') + '</p>' +
             '</div>' +
@@ -713,6 +784,7 @@
                     '<div class="flex items-center gap-2 flex-wrap">' +
                         '<span class="font-code text-xs text-gray-400" dir="ltr">' + esc(b.code) + '</span>' +
                         '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ' + st.cls + '">' + st.label + '</span>' +
+                        (b.gameName ? '<span class="text-[10px] text-gray-300">🎮 ' + esc(b.gameName) + '</span>' : '') +
                         timerChip(b) +
                     '</div>' +
                 '</div>' +
@@ -801,6 +873,8 @@
         catEl.textContent = cat.label;
         catEl.setAttribute('style', cat.style);
 
+        $('detail-game-box').hidden = !b.gameName;
+        $('detail-game').textContent = b.gameName || '';
         $('detail-req-box').hidden = !b.reqText;
         $('detail-req').textContent = b.reqText || '';
 
@@ -826,6 +900,7 @@
             $('input-code').value = b.code;
             $('input-status').value = b.status;
             $('input-category').value = b.category;
+            $('input-game-name').value = b.gameName || '';
             $('input-image-url').value = (b.imageUrl && !b.imageUrl.startsWith('data:')) ? b.imageUrl : '';
             $('input-req-text').value = b.reqText || '';
             $('input-description').value = b.description || '';
@@ -910,6 +985,7 @@
             code: code,
             status: $('input-status').value,
             category: $('input-category').value,
+            gameName: $('input-game-name').value.trim(),
             imageUrl: url || currentUploadedImg,
             reqText: $('input-req-text').value.trim(),
             description: $('input-description').value.trim(),
@@ -921,6 +997,7 @@
         badges = id ? badges.map(b => b.id === id ? data : b) : [data].concat(badges);
 
         if (!persist()) { badges = prev; return; }
+        renderGamePills();
         render();
         closeForm();
         toast(id ? 'تم حفظ التعديلات' : 'تمت إضافة الشارة');
@@ -947,6 +1024,7 @@
         badges = badges.filter(b => !set.has(b.id));
         if (!persist()) { badges = prev; return false; }
         ids.forEach(i => selectedBadgeIds.delete(i));
+        renderGamePills();
         return true;
     }
 
@@ -1017,6 +1095,76 @@
         render();
     });
 
+    $('game-filters').addEventListener('click', e => {
+        const btn = e.target.closest('[data-game]');
+        if (!btn) return;
+        gameFilter = btn.dataset.game;
+        render();
+    });
+
+    /* ---------- Categories manager ---------- */
+    function renderCatsList() {
+        $('cats-list').innerHTML = categories.length ? categories.map(c => {
+            const count = badges.filter(b => b.category === c.id).length;
+            return '<li class="flex items-center justify-between gap-3 bg-black/30 border border-white/10 rounded-2xl px-3 py-2.5">' +
+                '<div class="flex items-center gap-2.5 min-w-0">' +
+                    '<span class="w-3.5 h-3.5 rounded-full flex-shrink-0" style="background:' + esc(c.color) + '"></span>' +
+                    '<span class="text-sm font-bold text-white truncate">' + esc(c.label) + '</span>' +
+                    '<span class="text-[11px] text-gray-500 font-code">(' + count + ')</span>' +
+                '</div>' +
+                '<button type="button" data-del-cat="' + esc(c.id) + '" aria-label="حذف الفئة" class="p-1.5 rounded-lg text-twitch-neonRed hover:bg-twitch-neonRed/15">' + svg('trash', 'w-4 h-4') + '</button>' +
+            '</li>';
+        }).join('') : '<li class="text-xs text-gray-400 text-center py-4">لا توجد فئات. أضف فئة جديدة من الأعلى.</li>';
+    }
+    function openCats() {
+        $('cat-color').value = CAT_COLORS[categories.length % CAT_COLORS.length];
+        renderCatsList();
+        $('cats-modal').hidden = false;
+        setTimeout(() => $('cat-name').focus(), 50);
+    }
+    function closeCats() { $('cats-modal').hidden = true; }
+    function refreshCategoryUI() {
+        if (categoryFilter !== 'all' && !categories.some(c => c.id === categoryFilter)) categoryFilter = 'all';
+        renderCategoryPills();
+        render();
+    }
+
+    $('manage-cats-btn').addEventListener('click', openCats);
+    $('cats-close').addEventListener('click', closeCats);
+    $('cats-modal').addEventListener('mousedown', e => { if (e.target === e.currentTarget) closeCats(); });
+
+    $('cat-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const label = $('cat-name').value.trim();
+        if (!label) return;
+        if (categories.some(c => c.label.toLowerCase() === label.toLowerCase())) { toast('هذه الفئة موجودة مسبقاً.', true); return; }
+        const prev = categories;
+        categories = categories.concat([{ id: 'c' + Date.now(), label: label, color: $('cat-color').value || '#a970ff' }]);
+        if (!saveCategories()) { categories = prev; return; }
+        $('cat-name').value = '';
+        $('cat-color').value = CAT_COLORS[categories.length % CAT_COLORS.length];
+        renderCatsList();
+        refreshCategoryUI();
+        toast('تمت إضافة الفئة');
+    });
+
+    $('cats-list').addEventListener('click', e => {
+        const btn = e.target.closest('[data-del-cat]');
+        if (!btn) return;
+        const id = btn.dataset.delCat;
+        const c = categories.find(x => x.id === id);
+        if (!c) return;
+        const count = badges.filter(b => b.category === id).length;
+        askConfirm('حذف الفئة', 'سيتم حذف الفئة "' + c.label + '"' + (count ? ' (تحتوي على ' + count + ' شارة ستبقى بدون فئة)' : '') + '. هل أنت متأكد؟', () => {
+            const prev = categories;
+            categories = categories.filter(x => x.id !== id);
+            if (!saveCategories()) { categories = prev; return; }
+            renderCatsList();
+            refreshCategoryUI();
+            toast('تم حذف الفئة');
+        });
+    });
+
     function setView(mode) {
         viewMode = mode;
         try { localStorage.setItem(VIEW_KEY, mode); } catch (e) {}
@@ -1028,6 +1176,7 @@
     function resetFilters() {
         statusFilter = 'all';
         categoryFilter = 'all';
+        gameFilter = 'all';
         searchQuery = '';
         $('search-input').value = '';
         render();
@@ -1075,6 +1224,7 @@
     document.addEventListener('keydown', e => {
         if (e.key !== 'Escape') return;
         if (!$('confirm-modal').hidden) { closeConfirm(); return; }
+        if (!$('cats-modal').hidden) { closeCats(); return; }
         if (!$('badge-modal').hidden) { closeForm(); return; }
         if (!$('badge-detail-modal').hidden) { closeDetail(); return; }
         if (isSelectMode) setSelectMode(false);
@@ -1083,6 +1233,7 @@
     /* ---------- Init ---------- */
     hydrateIcons();
     renderCategoryPills();
+    renderGamePills();
     render();
 })();
 </script>
