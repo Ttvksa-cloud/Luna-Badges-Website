@@ -123,6 +123,43 @@
     .pill[data-status="soon"][aria-pressed="true"] { background: #3a86ff; border-color: #3a86ff; color: #fff; box-shadow: 0 0 20px rgba(58, 134, 255, 0.5); }
     .pill[data-status="unavailable"][aria-pressed="true"] { background: #ff0055; border-color: #ff0055; color: #fff; box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); }
 
+
+    /* ---- status colors (cards + detail modal) ---- */
+    .status-available, [data-status="available"] { --st: 0, 245, 212; --stt: #04120f; }
+    .status-soon, [data-status="soon"] { --st: 58, 134, 255; --stt: #ffffff; }
+    .status-unavailable, [data-status="unavailable"] { --st: 255, 0, 85; --stt: #ffffff; }
+
+    .badge-card.status-available, .badge-card.status-soon, .badge-card.status-unavailable {
+        border-color: rgba(var(--st), 0.55);
+        background: linear-gradient(160deg, rgba(var(--st), 0.18), rgba(22, 18, 36, 0.55) 65%);
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 22px rgba(var(--st), 0.2);
+    }
+    .badge-card.status-available:hover, .badge-card.status-soon:hover, .badge-card.status-unavailable:hover {
+        border-color: rgb(var(--st));
+        background: linear-gradient(160deg, rgba(var(--st), 0.3), rgba(22, 18, 36, 0.6) 70%);
+        box-shadow: 0 15px 35px -5px rgba(var(--st), 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    .badge-card.status-available .shadow-badge-glow, .badge-card.status-soon .shadow-badge-glow, .badge-card.status-unavailable .shadow-badge-glow {
+        border-color: rgba(var(--st), 0.5);
+        box-shadow: 0 0 25px rgba(var(--st), 0.45);
+    }
+    .badge-card.status-available:hover h3, .badge-card.status-soon:hover h3, .badge-card.status-unavailable:hover h3 { color: rgb(var(--st)) !important; }
+
+    #badge-detail-modal[data-status] { background: radial-gradient(circle at 50% 40%, rgba(var(--st), 0.28), rgba(0, 0, 0, 0.88) 70%); }
+    #badge-detail-modal[data-status] > div {
+        border-color: rgba(var(--st), 0.6);
+        background: linear-gradient(160deg, rgba(var(--st), 0.22), rgba(14, 11, 24, 0.92) 60%);
+        box-shadow: 0 20px 60px rgba(var(--st), 0.3);
+    }
+    #badge-detail-modal[data-status] .badge-display-frame {
+        background: radial-gradient(circle at center, rgba(var(--st), 0.3) 0%, rgba(0, 0, 0, 0.6) 100%);
+        border-color: rgba(var(--st), 0.45);
+        box-shadow: inset 0 0 15px rgba(var(--st), 0.3);
+    }
+    #badge-detail-modal[data-status] #detail-image-box { border-color: rgba(var(--st), 0.6); box-shadow: 0 0 25px rgba(var(--st), 0.5); }
+    #badge-detail-modal[data-status] #detail-code { color: rgb(var(--st)); }
+    #badge-detail-modal[data-status] .ios-button { background: rgb(var(--st)); color: var(--stt); }
+
     .view-btn { color: #9ca3af; }
     .view-btn:hover { color: #fff; }
     .view-btn[aria-pressed="true"] { background: var(--accent); color: #fff; box-shadow: 0 0 14px var(--accent-glow); }
@@ -753,7 +790,7 @@
         const isSelected = selectedBadgeIds.has(b.id);
 
         return '' +
-        '<div data-open="' + esc(b.id) + '" class="badge-card ios-glass rounded-3xl p-4 flex flex-col justify-between cursor-pointer relative group ' + (isSelected ? 'selected' : '') + '">' +
+        '<div data-open="' + esc(b.id) + '" class="badge-card status-' + esc(b.status) + ' ios-glass rounded-3xl p-4 flex flex-col justify-between cursor-pointer relative group ' + (isSelected ? 'selected' : '') + '">' +
             (isSelectMode ? '<input type="checkbox" data-select-id="' + esc(b.id) + '" ' + (isSelected ? 'checked' : '') + ' aria-label="تحديد" class="absolute top-3 left-3 w-5 h-5 accent-twitch-purple cursor-pointer z-10">' : '') +
             '<div>' +
                 '<div class="flex items-center justify-between gap-2 mb-3">' +
@@ -779,7 +816,7 @@
         const st = STATUS[b.status] || STATUS.available;
         const isSelected = selectedBadgeIds.has(b.id);
         return '' +
-        '<div data-open="' + esc(b.id) + '" class="badge-card ios-glass rounded-2xl p-3.5 flex items-center justify-between gap-4 cursor-pointer ' + (isSelected ? 'selected' : '') + '">' +
+        '<div data-open="' + esc(b.id) + '" class="badge-card status-' + esc(b.status) + ' ios-glass rounded-2xl p-3.5 flex items-center justify-between gap-4 cursor-pointer ' + (isSelected ? 'selected' : '') + '">' +
             '<div class="flex items-center gap-3 min-w-0">' +
                 (isSelectMode ? '<input type="checkbox" data-select-id="' + esc(b.id) + '" ' + (isSelected ? 'checked' : '') + ' aria-label="تحديد" class="w-5 h-5 accent-twitch-purple cursor-pointer">' : '') +
                 '<div class="w-12 h-12 bg-black/50 rounded-xl flex items-center justify-center border border-twitch-purple/30 flex-shrink-0 shadow-md">' + renderBadgeImage(b.imageUrl, 'w-8 h-8') + '</div>' +
@@ -883,6 +920,7 @@
         $('detail-req').textContent = b.reqText || '';
 
         updateDetailTimer();
+        $('badge-detail-modal').dataset.status = b.status;
         $('badge-detail-modal').hidden = false;
     }
     function closeDetail() {
