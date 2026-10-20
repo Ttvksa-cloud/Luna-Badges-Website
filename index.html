@@ -119,6 +119,10 @@
         box-shadow: 0 0 20px var(--accent-glow);
     }
 
+    .pill[data-status="available"][aria-pressed="true"] { background: #00f5d4; border-color: #00f5d4; color: #04120f; box-shadow: 0 0 20px rgba(0, 245, 212, 0.45); }
+    .pill[data-status="soon"][aria-pressed="true"] { background: #3a86ff; border-color: #3a86ff; color: #fff; box-shadow: 0 0 20px rgba(58, 134, 255, 0.5); }
+    .pill[data-status="unavailable"][aria-pressed="true"] { background: #ff0055; border-color: #ff0055; color: #fff; box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); }
+
     .view-btn { color: #9ca3af; }
     .view-btn:hover { color: #fff; }
     .view-btn[aria-pressed="true"] { background: var(--accent); color: #fff; box-shadow: 0 0 14px var(--accent-glow); }
@@ -204,7 +208,7 @@
                 </div>
                 <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-twitch-neonRed/10 border border-twitch-neonRed/30">
                     <span class="w-2.5 h-2.5 rounded-full bg-twitch-neonRed"></span>
-                    <span class="text-xs text-gray-300">غير متاح:</span>
+                    <span class="text-xs text-gray-300">منتهي:</span>
                     <span id="stat-unavailable" class="text-sm font-bold text-twitch-neonRed font-code">0</span>
                 </div>
             </div>
@@ -238,7 +242,7 @@
                 <div id="stat-soon-m" class="text-base font-bold text-twitch-neonBlue font-code">0</div>
             </div>
             <div class="rounded-2xl bg-twitch-neonRed/10 border border-twitch-neonRed/30 py-2">
-                <div class="text-gray-300">غير متاح</div>
+                <div class="text-gray-300">منتهي</div>
                 <div id="stat-unavailable-m" class="text-base font-bold text-twitch-neonRed font-code">0</div>
             </div>
         </div>
@@ -277,7 +281,7 @@
                     <button class="pill" data-status="all" type="button">الكل</button>
                     <button class="pill" data-status="available" type="button">🟢 متاح</button>
                     <button class="pill" data-status="soon" type="button">🔵 قريباً</button>
-                    <button class="pill" data-status="unavailable" type="button">🔴 غير متاح</button>
+                    <button class="pill" data-status="unavailable" type="button">🔴 منتهي</button>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto" id="category-filters">
@@ -445,7 +449,7 @@
                         <select id="input-status" class="field">
                             <option value="available">🟢 متاح (Available)</option>
                             <option value="soon">🔵 قريباً (Soon)</option>
-                            <option value="unavailable">🔴 غير متاح (Unavailable)</option>
+                            <option value="unavailable">🔴 منتهي (Unavailable)</option>
                         </select>
                     </div>
                     <div>
@@ -591,7 +595,7 @@
     const STATUS = {
         available: { label: 'متاح', cls: 'bg-twitch-neonGreen/10 text-twitch-neonGreen border-twitch-neonGreen/40' },
         soon: { label: 'قريباً', cls: 'bg-twitch-neonBlue/10 text-twitch-neonBlue border-twitch-neonBlue/40' },
-        unavailable: { label: 'غير متاح', cls: 'bg-twitch-neonRed/10 text-twitch-neonRed border-twitch-neonRed/40' }
+        unavailable: { label: 'منتهي', cls: 'bg-twitch-neonRed/10 text-twitch-neonRed border-twitch-neonRed/40' }
     };
 
     function defaultBadges() {
